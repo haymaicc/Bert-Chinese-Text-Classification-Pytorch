@@ -7,8 +7,41 @@ from datetime import timedelta
 PAD, CLS = '[PAD]', '[CLS]'  # padding符号, bert中综合信息符号
 
 
-def build_dataset(config):
+def get_category_id():
+    """
+    返回分类种类的索引
+    :return: 返回分类种类的字典
+    """
+    categories = ['交运设备',
+                  '交通运输',
+                  '休闲服务',
+                  '信息技术',
+                  '公用事业',
+                  '农林牧渔',
+                  '化石能源',
+                  '医药生物',
+                  '商贸零售',
+                  '国防军工',
+                  '基础化工',
+                  '家用电器',
+                  '建筑建材',
+                  '房地产',
+                  '文化传媒',
+                  '有色金属',
+                  '机械设备',
+                  '电子设备',
+                  '电气设备',
+                  '纺织服装',
+                  '综合',
+                  '轻工制造',
+                  '金融',
+                  '钢铁',
+                  '食品饮料']
+    cates_dict = dict(zip(categories, range(len(categories))))
+    return cates_dict
 
+
+def build_dataset(config):
     def load_dataset(path, pad_size=32):
         contents = []
         with open(path, 'r', encoding='UTF-8') as f:
@@ -16,7 +49,9 @@ def build_dataset(config):
                 lin = line.strip()
                 if not lin:
                     continue
-                content, label = lin.split('\t')
+                split = lin.split('\t')
+                label = split[0]
+                content = "，".join(split[1:])
                 token = config.tokenizer.tokenize(content)
                 token = [CLS] + token
                 seq_len = len(token)
@@ -31,8 +66,9 @@ def build_dataset(config):
                         mask = [1] * pad_size
                         token_ids = token_ids[:pad_size]
                         seq_len = pad_size
-                contents.append((token_ids, int(label), seq_len, mask))
+                contents.append((token_ids, get_category_id()[label], seq_len, mask))
         return contents
+
     train = load_dataset(config.train_path, config.pad_size)
     dev = load_dataset(config.dev_path, config.pad_size)
     test = load_dataset(config.test_path, config.pad_size)
