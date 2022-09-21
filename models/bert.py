@@ -13,7 +13,7 @@ class Config(object):
         self.dev_path = dataset + '/industry/dev.txt'                                    # 验证集
         self.test_path = dataset + '/industry/test.txt'                                  # 测试集
         self.class_list = [x.strip() for x in open(
-            dataset + '/data/class.txt').readlines()]                                # 类别名单
+            dataset + '/industry/class.txt',encoding='UTF-8').readlines()]                                # 类别名单
         self.save_path = self.model_name + '.ckpt'        # 模型训练结果
         self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')   # 设备
 

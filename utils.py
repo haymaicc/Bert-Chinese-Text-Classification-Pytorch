@@ -12,31 +12,33 @@ def get_category_id():
     返回分类种类的索引
     :return: 返回分类种类的字典
     """
-    categories = ['交运设备',
-                  '交通运输',
-                  '休闲服务',
-                  '信息技术',
-                  '公用事业',
-                  '农林牧渔',
-                  '化石能源',
-                  '医药生物',
-                  '商贸零售',
-                  '国防军工',
-                  '基础化工',
-                  '家用电器',
-                  '建筑建材',
-                  '房地产',
-                  '文化传媒',
-                  '有色金属',
-                  '机械设备',
-                  '电子设备',
-                  '电气设备',
-                  '纺织服装',
-                  '综合',
-                  '轻工制造',
-                  '金融',
+    categories = ['房地产开发',
+                  '通信设备',
+                  '计算机应用',
+                  '饮料制造',
+                  '通用机械',
+                  '银行',
+                  '环保工程及服务',
+                  '其他轻工制造',
                   '钢铁',
-                  '食品饮料']
+                  '煤炭开采',
+                  '石油化工',
+                  '证券',
+                  '贸易',
+                  '化学制品',
+                  '保险',
+                  '半导体',
+                  '金属非金属新材料',
+                  '生物制品',
+                  '电力',
+                  '物流',
+                  '通信运营',
+                  '医疗服务',
+                  '汽车零部件',
+                  '包装印刷',
+                  '航空运输',
+                  '家用轻工',
+                  '医疗器械']
     cates_dict = dict(zip(categories, range(len(categories))))
     return cates_dict
 
@@ -51,7 +53,9 @@ def build_dataset(config):
                     continue
                 split = lin.split('\t')
                 label = split[0]
-                content = "，".join(split[1:])
+                content = "，".join(split[1:]).strip()
+                if (not label) or (not content):
+                    continue
                 token = config.tokenizer.tokenize(content)
                 token = [CLS] + token
                 seq_len = len(token)
@@ -66,7 +70,8 @@ def build_dataset(config):
                         mask = [1] * pad_size
                         token_ids = token_ids[:pad_size]
                         seq_len = pad_size
-                contents.append((token_ids, get_category_id()[label], seq_len, mask))
+                if label in get_category_id().keys():
+                    contents.append((token_ids, get_category_id()[label], seq_len, mask))
         return contents
 
     train = load_dataset(config.train_path, config.pad_size)
